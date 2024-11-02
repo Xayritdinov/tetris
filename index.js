@@ -21,10 +21,9 @@ function drawTetrisPlayground(x, y, target) {
         }
 }
 
-const tetrisPlaygroundTarget = document.querySelector('.tetris-plyground')
+const tetrisPlaygroundTarget = document.querySelector('.tetris-playground')
 
 try  {
-    // drawTetrisPlayground(-10, 20, tetrisPlaygroundTarget)
     drawTetrisPlayground(10, 20, tetrisPlaygroundTarget)
 } catch (e) {
     console.log(e.message)
@@ -84,22 +83,66 @@ const shapeKeys = Object.keys(shapes)
 const shapeKeyIndex = Math.floor(Math.random() * shapeKeys.length)
 const shapeKey = shapeKeys[shapeKeyIndex]
 
-const currentShape = shapes[shapeKey]
-// const currentShape = shapes.S
-const rowsToColor = currentShape.shape.length
-const cellsToColor = currentShape.shape[0].length
+let currentShape = shapes[shapeKey]
 
-console.log(currentShape.shape)
-console.log(currentShape.shape.length)
-console.log(currentShape.shape[0].length)
+function renderShape() {
+    const rowsToColor = currentShape.shape.length
+    const cellsToColor = currentShape.shape[0].length
 
-for (let rowIndex = 0; rowIndex < rowsToColor; rowIndex++) {
-    const row = tetrisPlaygroundTarget.children[rowIndex];
+    for (let rowIndex = 0; rowIndex < rowsToColor; rowIndex++) {
+        const row = tetrisPlaygroundTarget.children[rowIndex]
 
-    for (let cellIndex = 0; cellIndex < cellsToColor; cellIndex++) {
-        const cell = row.children[cellIndex];
-        if (currentShape.shape[rowIndex][cellIndex]) {
-            cell.style.backgroundColor = currentShape.color;
+        for (let cellIndex = 0; cellIndex < cellsToColor; cellIndex++) {
+            const cell = row.children[cellIndex]
+            if (currentShape.shape[rowIndex][cellIndex]) {
+                cell.style.backgroundColor = currentShape.color
+            }
         }
     }
 }
+
+function removePreviousShape() {
+    const rowsToColor = currentShape.shape.length;
+    const cellsToColor = currentShape.shape[0].length;
+
+    for (let rowIndex = 0; rowIndex < rowsToColor; rowIndex++) {
+        const row = tetrisPlaygroundTarget.children[rowIndex];
+
+        for (let cellIndex = 0; cellIndex < cellsToColor; cellIndex++) {
+            const cell = row.children[cellIndex];
+            if (currentShape.shape[rowIndex][cellIndex]) {
+                cell.style.backgroundColor = '';
+            }
+        }
+    }
+}
+
+
+function rotateShape(shape) {
+    if (shape.length === 2 && shape[0].length === 2) return shape
+
+    const rotatedShape = []
+
+    for (let rowsCount = 0; rowsCount < shape[0].length; rowsCount++) {
+        const row = []
+        rotatedShape.push(row)
+    }
+    for (let i = shape.length - 1, k = 0; i >= 0; i--, k++) {
+        for (let j = 0; j < shape[0].length; j++) {
+            rotatedShape[j][k] = shape[i][j]
+        }
+    }
+
+    return rotatedShape
+}
+
+
+renderShape()
+
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        removePreviousShape()
+        currentShape.shape = rotateShape(currentShape.shape)        
+        renderShape()
+    }
+})
